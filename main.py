@@ -2,15 +2,16 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models import Book
 import pandas as pd
-from database import get_db, create_tables
+from database import Database
 from schemas import BookRequest
 import requests
 
 app = FastAPI()
-create_tables()
+database = Database()
+database.create_tables()
 
 @app.post("/books/")
-def create_book(book_data: BookRequest, db: Session = Depends(get_db)):
+def create_book(book_data: BookRequest, db: Session = Depends(database.get_db)):
     existing_book = db.query(Book).filter(Book.isbn == book_data.isbn).first()
 
     if existing_book:
@@ -35,12 +36,12 @@ def create_book(book_data: BookRequest, db: Session = Depends(get_db)):
     }
 
 @app.get("/books/")
-def read_books(db: Session = Depends(get_db)):
+def read_books(db: Session = Depends(database.get_db)):
     books = db.query(Book).all()
     return books if books else {"No": "books to show"}
     
 @app.get("/books/{book_id}")
-def read_book(book_id: int, db: Session = Depends(get_db)):
+def read_book(book_id: int, db: Session = Depends(database.get_db)):
     book = db.query(Book).filter(Book.id == book_id).first()
 
     if not book:
@@ -48,7 +49,7 @@ def read_book(book_id: int, db: Session = Depends(get_db)):
     return book
 
 @app.put("/books/{book_id}")
-def update_book(book_data: BookRequest, book_id: int, db: Session = Depends(get_db)):
+def update_book(book_data: BookRequest, book_id: int, db: Session = Depends(database.get_db)):
     book = db.query(Book).filter(Book.id == book_id).first()
 
     if not book:
@@ -70,7 +71,7 @@ def update_book(book_data: BookRequest, book_id: int, db: Session = Depends(get_
     }
 
 @app.delete("/books/{book_id}")
-def delete_book(book_id: int, db: Session = Depends(get_db)):
+def delete_book(book_id: int, db: Session = Depends(database.get_db)):
     book = db.query(Book).filter(Book.id == book_id).first()
 
     if not book:
