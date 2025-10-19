@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from config.database import Database
-from schemas import BookRequest
+from schemas import BookRequest, BookResponse
 from crud import books as crud_books
 
 router = APIRouter(
@@ -11,7 +11,7 @@ router = APIRouter(
 
 database = Database()
 
-@router.post("/")
+@router.post("/", response_model=BookResponse)
 def create_book(book_data: BookRequest, db: Session = Depends(database.get_db)):
     existing_book = crud_books.get_book_by_isbn(db, book_data.isbn)
     
@@ -20,13 +20,7 @@ def create_book(book_data: BookRequest, db: Session = Depends(database.get_db)):
     
     book = crud_books.create_book(db, book_data)
     
-    return {
-        "id": book.id,
-        "title": book.title,
-        "author": book.author,
-        "year": book.year,
-        "isbn": book.isbn
-    }
+    return book
 
 
 @router.get("/")
@@ -45,20 +39,14 @@ def read_book(book_id: int, db: Session = Depends(database.get_db)):
     return book
 
 
-@router.put("/{book_id}")
+@router.put("/{book_id}", response_model=BookResponse)
 def update_book(book_data: BookRequest, book_id: int, db: Session = Depends(database.get_db)):
     book = crud_books.update_book(db, book_id, book_data)
     
     if not book:
         raise HTTPException(status_code=404, detail="Book not found!")
     
-    return {
-        "id": book.id,
-        "title": book.title,
-        "author": book.author,
-        "year": book.year,
-        "isbn": book.isbn
-    }
+    return book
 
 
 @router.delete("/{book_id}")
