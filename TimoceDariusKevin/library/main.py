@@ -31,10 +31,11 @@ Endpoints requirements.
 Moreover, find a way to integrate the requests and pandas libraries into your solution. Use your creativity.
 '''
 from typing import Annotated
-from fastapi import FastAPI, HTTPException, Path, status
+from fastapi import FastAPI, HTTPException, Path, status, Response
+from fastapi.responses import RedirectResponse
 from pydantic import AfterValidator
-from .Model.book import Book
-from .Repository.csv_repository import CSV_Repository
+from Model.book import Book
+from Repository.csv_repository import CSV_Repository
 app = FastAPI(
     title="API to manage books in a library",
     docs_url="/"
@@ -43,8 +44,9 @@ app = FastAPI(
 book_repository = CSV_Repository()
 
 def check_valid_isbn(isbn: str):
-    if not isbn.startswith(("isbn-", "imdb-")):
-        raise ValueError('Invalid ID format, it must start with "isbn-" or "imdb-"')
+    isbn_lower = isbn.lower()
+    if not any(prefix in isbn_lower for prefix in ['isbn', '978', '979', 'imdb']):
+        raise ValueError('ISBN should contain "isbn", "978", "979", or "imdb"')
     return isbn
 
 @app.get("/books", response_model=list[Book])
@@ -78,7 +80,9 @@ async def get_book_by_id(book_id: Annotated[int, Path(title="id of the needed bo
 
 @app.post("/books", response_model=Book, status_code=status.HTTP_201_CREATED)
 async def create_book(
-    book: Annotated[Book, AfterValidator(check_valid_isbn)]) -> Book:
+    #book: Annotated[Book, AfterValidator(check_valid_isbn)]) -> Book:
+    book: Book) -> Book:
+
     '''
         ### Create a new instance of type Book and add it to the CSV repository
         
@@ -132,4 +136,18 @@ async def delete_book(book_id: int):
             detail=f"Book with id: {book_id} was not found when trying to update it"
         )
     return {"message": f"book with ID {book_id} deleted succesfully"}
+
+@app.get("/surprise")
+async def surprise() -> Response:
+    """
+    # A simple surprise...
+    """
+    return RedirectResponse("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+    
+@app.get("/books/stats/")
+async def get_books_statistics():
+    """Get statistics about the books collection using pandas"""
+    return book_repository.get_books_statistics()
+
+
     

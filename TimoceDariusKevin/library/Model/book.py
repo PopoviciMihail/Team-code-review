@@ -11,6 +11,7 @@ class Book(BaseModel):
     @field_validator('isbn')
     @classmethod
     def validate_isbn(cls, field):
+        print("validating")
         if not any(prefix in field.lower() for prefix in ['isbn', '978', '979']):
             raise ValueError('ISBN should contain "isbn", "978", or "979"')
         return field

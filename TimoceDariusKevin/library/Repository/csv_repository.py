@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from typing import List, Optional
-from ..Model.book import Book
+from Model.book import Book
 
 class CSV_Repository:
     
