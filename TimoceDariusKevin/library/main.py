@@ -38,6 +38,7 @@ from Model.book import Book
 from Repository.csv_repository import CSV_Repository
 app = FastAPI(
     title="API to manage books in a library",
+    version="1.0.1",
     docs_url="/"
 )
 
