@@ -35,7 +35,10 @@ from fastapi import FastAPI, HTTPException, Path, status
 from pydantic import AfterValidator
 from .Model.book import Book
 from .Repository.csv_repository import CSV_Repository
-app = FastAPI()
+app = FastAPI(
+    title="API to manage books in a library",
+    docs_url="/"
+)
 
 book_repository = CSV_Repository()
 
@@ -43,10 +46,6 @@ def check_valid_isbn(isbn: str):
     if not isbn.startswith(("isbn-", "imdb-")):
         raise ValueError('Invalid ID format, it must start with "isbn-" or "imdb-"')
     return isbn
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
 @app.get("/books", response_model=list[Book])
 async def get_all_books() -> list[Book]:

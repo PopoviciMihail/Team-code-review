@@ -51,7 +51,7 @@ class CSV_Repository:
             books.append(Book(**book_data))
         return books
     
-    def get(self, book_id: int) -> Optional[Book]:
+    def get(self, book_id: int) -> Book | None:
         """Get a book by ID"""
         self.load_from_csv()
         if self.books_dataframe.empty:
@@ -78,7 +78,7 @@ class CSV_Repository:
         
         return new_book
     
-    def update(self, book_id: int, book: Book) -> Optional[Book]:
+    def update(self, book_id: int, book: Book) -> Book | None:
         """Update a book"""
         self.load_from_csv()
         
@@ -89,7 +89,6 @@ class CSV_Repository:
         updated_book = book.model_copy()
         updated_book.id = book_id
         
-        # Update in DataFrame
         mask = self.books_dataframe['id'] == book_id
         for column in ['title', 'author', 'year', 'isbn']:
             self.books_dataframe.loc[mask, column] = getattr(updated_book, column)
@@ -104,7 +103,6 @@ class CSV_Repository:
         if self.books_dataframe.empty or book_id not in self.books_dataframe['id'].values:
             return False
         
-        # Remove the book
         self.books_dataframe = self.books_dataframe[self.books_dataframe['id'] != book_id]
         self.save_to_csv()
         return True
