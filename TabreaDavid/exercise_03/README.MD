@@ -10,7 +10,7 @@
     ```
 3. **Install dependencies**
     ```bsah
-    pip install -r requirements.txt
+    pip install -r config/requirements.txt
     ```
 4. **Create .env file**
     ```env
