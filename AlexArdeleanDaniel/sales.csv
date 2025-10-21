@@ -1,0 +1,6 @@
+order_id,product,quantity,price_per_unit,cost_per_unit
+1,Apple,10,0.50,0.30
+2,Banana,5,0.20,0.10
+3,Apple,4,0.50,0.30
+4,Orange,8,0.70,0.40
+5,Banana,10,0.20,0.10

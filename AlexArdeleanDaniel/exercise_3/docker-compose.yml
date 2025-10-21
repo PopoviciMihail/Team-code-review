@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  exercise3:
+    build: .
+    container_name: exercise3
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/workspace:ro
+    working_dir: /app
+    environment:
+      - PYTHONUNBUFFERED=1
