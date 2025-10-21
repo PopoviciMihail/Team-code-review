@@ -1,6 +1,0 @@
-fastapi
-requests
-pandas
-sqlalchemy
-dotenv
-uvicorn
