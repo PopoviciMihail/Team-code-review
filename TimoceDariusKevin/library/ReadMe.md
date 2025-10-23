@@ -39,6 +39,12 @@ Moreover, find a way to integrate the requests and pandas libraries into your so
 - Each Admin may manage each user's personal collection
 - Admins may not see the true name of author's
 - Admins may remove a Privileged Users's account
-- Privileged users must log in otherwise will be considered Guests
-- Admins must log in otherwise they will be considered guests
-- Privileged users may add a CSV formatted wishlist
+- User accounts will be persisted within a database
+- Augment Get call for books with get paginated
+- Augment Get call for books with get sorted
+- (Possibly add a sorted/filetered query object)?
+- Add security token that is checked for roles
+- Add CORS specialization
+- Add custom errors and handling
+- Users's passwords should be hashed before storing
+
