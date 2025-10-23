@@ -30,125 +30,12 @@ Endpoints requirements.
 
 Moreover, find a way to integrate the requests and pandas libraries into your solution. Use your creativity.
 '''
-from typing import Annotated
-from fastapi import FastAPI, HTTPException, Path, status, Response
-from fastapi.responses import RedirectResponse
-from pydantic import AfterValidator
-from Model.book import Book
-from Repository.csv_repository import CSV_Repository
+from fastapi import FastAPI
+from Controller.book_controller import book_router
 app = FastAPI(
     title="API to manage books in a library",
     version="1.0.1",
     docs_url="/"
 )
 
-book_repository = CSV_Repository()
-
-def check_valid_isbn(isbn: str):
-    isbn_lower = isbn.lower()
-    if not any(prefix in isbn_lower for prefix in ['isbn', '978', '979', 'imdb']):
-        raise ValueError('ISBN should contain "isbn", "978", "979", or "imdb"')
-    return isbn
-
-@app.get("/books", response_model=list[Book])
-async def get_all_books() -> list[Book]:
-    '''
-        ### Retrieves all books from the csv.
-    '''
-    return book_repository.get_all()
-
-
-@app.get("/books/{book_id}", response_model=Book)
-async def get_book_by_id(book_id: Annotated[int, Path(title="id of the needed book", gt=0)]) -> Book:
-    '''
-        ### Get one book by it's ID
-        
-        *params*:
-            - book_id: an integer representing a unique instance of a book
-        
-        *returns*:
-            - book: the book according to it's unique id
-            - HTTPException: if no book has been found
-    '''
-    
-    book = book_repository.get(book_id)
-    if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Book with ID {book_id} not found"
-            )
-    return book
-
-@app.post("/books", response_model=Book, status_code=status.HTTP_201_CREATED)
-async def create_book(
-    #book: Annotated[Book, AfterValidator(check_valid_isbn)]) -> Book:
-    book: Book) -> Book:
-
-    '''
-        ### Create a new instance of type Book and add it to the CSV repository
-        
-        *params*: 
-        - book: an object of type Book
-        *returns*:
-        - book the created object
-    '''
-    try:
-        created_book = book_repository.add(book)
-        return created_book
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Error creating book: {str(e)}"
-        )
-
-@app.put("/books/{book_id}", response_model=Book)
-async def update_book(book_id: Annotated[int, Path(title="id of the needed book", gt=0)], book: Annotated[Book, AfterValidator(check_valid_isbn)]) -> Book:
-    """
-    ### Updates a book found by it's book_id
-    
-    *params*:
-    - book_id: the id of the book which needs to be updated
-    - book: the new details of the book
-    
-    *returns*:
-    - updated_book: the book with the same id but changed details
-    """
-    updated_book = book_repository.update(book_id, book)
-    if not updated_book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Book with id: {book_id} was not found when trying to update it"
-        )
-    return updated_book
-
-@app.delete("/book/{book_id}")
-async def delete_book(book_id: int):
-    """
-    ### deletes a book form csv
-    
-    *params*:
-    - book_id: the id of the book that needs to be deleted
-    """
-    
-    success = book_repository.remove(book_id)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Book with id: {book_id} was not found when trying to update it"
-        )
-    return {"message": f"book with ID {book_id} deleted succesfully"}
-
-@app.get("/surprise")
-async def surprise() -> Response:
-    """
-    # A simple surprise...
-    """
-    return RedirectResponse("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-    
-@app.get("/books/stats/")
-async def get_books_statistics():
-    """Get statistics about the books collection using pandas"""
-    return book_repository.get_books_statistics()
-
-
-    
+app.include_router(book_router)

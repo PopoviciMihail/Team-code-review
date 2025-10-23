@@ -8,7 +8,7 @@ class CSV_Repository:
     books_dataframe: pd.DataFrame
     
     def __init__(self, csv_file: str = "books.csv"):
-        self.csv_file = Path(csv_file)
+        self.csv_file = Path("Data/" + csv_file)
         self.initialize()
     
     def initialize(self):
@@ -66,14 +66,11 @@ class CSV_Repository:
     def add(self, book: Book) -> Book:
         """Add a new book"""
         self.load_from_csv()
-        
-        # Create new book with ID
         new_book = book.model_copy()
         new_book.id = self._get_next_id()
-        
-        # Convert to DataFrame and append
-        new_book_df = pd.DataFrame([new_book.model_dump()])
-        self.books_dataframe = pd.concat([self.books_dataframe, new_book_df], ignore_index=True)
+
+        new_book_dataframe = pd.DataFrame([new_book.model_dump()])
+        self.books_dataframe = pd.concat([self.books_dataframe, new_book_dataframe], ignore_index=True)
         self.save_to_csv()
         
         return new_book
@@ -84,8 +81,6 @@ class CSV_Repository:
         
         if self.books_dataframe.empty or book_id not in self.books_dataframe['id'].values:
             return None
-        
-        # Update the book
         updated_book = book.model_copy()
         updated_book.id = book_id
         
