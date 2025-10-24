@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from models import Book
-from schemas import BookRequest
+from db.models import Book
+from routers.schemas import BookRequest
 
 
 def get_book_by_id(db: Session, book_id: int):

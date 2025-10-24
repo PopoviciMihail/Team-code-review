@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from config.database import Database
-from schemas import BookRequest, BookResponse
+from routers.dependencies import database
+from routers.schemas import BookRequest, BookResponse
 from crud import books as crud_books
 import pandas as pd
 import requests
@@ -11,7 +11,6 @@ router = APIRouter(
     tags=["books"]
 )
 
-database = Database()
 
 @router.post("/", response_model=BookResponse)
 def create_book(book_data: BookRequest, db: Session = Depends(database.get_db)):
