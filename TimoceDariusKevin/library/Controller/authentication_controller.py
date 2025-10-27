@@ -16,6 +16,14 @@ auth_router = APIRouter(
 
 @auth_router.post("/register")
 async def register(user: UserCreate, session: SessionDependency):
+    """
+    Register a new user account
+
+    Params:
+    :param user: User creation data including username, email, password and role
+    :param session: Database session dependency
+    :return: Success message upon user creation
+    """
     # Check if user exists
     existing_user = session.exec(select(User).where(User.username == user.username)).first()
     if existing_user:
@@ -41,6 +49,13 @@ async def register(user: UserCreate, session: SessionDependency):
 
 @auth_router.post("/login")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: SessionDependency):
+    """
+    Authenticate user and return access token
+    Params:
+    :param form_data: OAuth2 password form containing username and password
+    :param session: Database session dependency
+    :return: Access token with token type and user role
+    """
     user = authenticate_user(session, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
