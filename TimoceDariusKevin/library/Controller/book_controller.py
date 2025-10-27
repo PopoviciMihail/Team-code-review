@@ -129,6 +129,9 @@ async def create_book(
     session.commit()
     session.refresh(db_book)
     
+    #CSV Add a book
+    book_repository.add(db_book)
+    
     return BookPublic(**db_book.model_dump())
 
 
@@ -160,6 +163,9 @@ async def update_book(
     session.commit()
     session.refresh(db_book)
     
+    #CSV Update
+    book_repository.update(book_id, db_book)
+    
     return BookPublic(**db_book.model_dump())
 
 @book_router.delete("/{book_id}")
@@ -178,6 +184,8 @@ async def delete_book(
     
     session.delete(book)
     session.commit()
+    
+    book_repository.remove(book_id)
     return {"message": f"Book with ID {book_id} deleted successfully"}
 
 @book_router.get("/stats/")
