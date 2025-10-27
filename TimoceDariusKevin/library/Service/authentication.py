@@ -19,6 +19,18 @@ def verify_password(plain_password, hashed_password) -> bool:
     return password_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password) -> str:
+    # Truncate the string to ensure UTF-8 encoding won't exceed 72 bytes
+    # We'll find the maximum number of characters that fit in 72 bytes
+    encoded = password.encode('utf-8')
+    print(password)
+    print(len(encoded))
+    if len(encoded) > 72:
+        # Truncate bytes and decode back to string
+        truncated_bytes = encoded[:72]
+        # Remove any incomplete multi-byte characters at the end
+        while truncated_bytes[-1] & 0b11000000 == 0b10000000:
+            truncated_bytes = truncated_bytes[:-1]
+        password = truncated_bytes.decode('utf-8', 'ignore')
     return password_context.hash(password)
 
 def authenticate_user(session: SessionDependency, username: str, password: str):
