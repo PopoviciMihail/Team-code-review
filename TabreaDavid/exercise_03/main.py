@@ -1,8 +1,7 @@
 from fastapi import FastAPI
-from config.database import Database
+from routers.dependencies import database
 from routers import books
 
-database = Database()
 database.create_tables()
 
 app = FastAPI()
