@@ -38,7 +38,16 @@ async def get_all_books(
     sort_by: str | None = Query(None, description="Field to sort by"),
     author_filter: str | None = Query(None, description="Filter by author")
     ) -> list[Book]:
-    """Retrieve all books with pagination and filtering."""
+    """Retrieve all books with pagination and filtering
+
+    Params:
+    :param current_user: Currently authenticated user
+    :param session: Database session dependency
+    :param offset: Pagination offset
+    :param limit: Maximum number of records to return (max 100)
+    :param sort_by: Field to sort results by
+    :param author_filter: Filter books by author name
+    :return: List of books with different visibility based on user role"""
     query = select(Book)
     
     if author_filter:
@@ -81,7 +90,13 @@ async def get_book_by_id(
     current_user: Annotated[User, Depends(get_current_active_user)],
     session: SessionDependency,
     book_id: Annotated[int, Path(title="ID of the needed book", gt=0)]):
-    """Get a single book by ID."""
+    """Get a single book by ID
+
+    Params:
+    :param current_user: Currently authenticated user
+    :param session: Database session dependency
+    :param book_id: ID of the book to retrieve
+    :return: Book details with author visibility based on user role"""
     book = session.get(Book, book_id)
     if not book:
         raise HTTPException(
@@ -116,6 +131,15 @@ async def create_book(
     session: SessionDependency,
     book: BookCreate
 ):
+    """
+    Create a new book (privileged users only)
+
+    Params:
+    :param current_user: Currently authenticated privileged user
+    :param session: Database session dependency
+    :param book: Book creation data
+    :return: Created book details
+    """
     if book.quantity < 0:
         raise HTTPException(status_code=400, detail="Quantity cannot be negative")
     
@@ -143,7 +167,14 @@ async def update_book(
     book_id: Annotated[int, Path(title="ID of the needed book", gt=0)],
     book: BookCreate
 ):
-    """Update an existing book - only for privileged users and admins."""
+    """Update an existing book (privileged users only)
+
+    Params:
+    :param current_user: Currently authenticated privileged user
+    :param session: Database session dependency
+    :param book_id: ID of the book to update
+    :param book: Updated book data
+    :return: Updated book details"""
     db_book = session.get(Book, book_id)
     if not db_book:
         raise HTTPException(
@@ -174,7 +205,13 @@ async def delete_book(
     session: SessionDependency,
     book_id: int
 ):
-    """Delete a book by ID - only for privileged users and admins."""
+    """Delete a book by ID (privileged users only)
+
+    Params:
+    :param current_user: Currently authenticated privileged user
+    :param session: Database session dependency
+    :param book_id: ID of the book to delete
+    :return: Success message"""
     book = session.get(Book, book_id)
     if not book:
         raise HTTPException(
@@ -190,11 +227,17 @@ async def delete_book(
 
 @book_router.get("/stats/")
 async def get_books_statistics():
-    """Get statistics about the books collection using pandas."""
+    """Get statistics about the books collection using pandas
+
+    Params:
+    :return: Books statistics data"""
     return book_repository.get_books_statistics()
 
 
 @book_router.get("/surprise")
 async def surprise() -> Response:
-    """A simple surprise..."""
+    """A simple surprise redirect
+
+    Params:
+    :return: Redirect response to external URL"""
     return RedirectResponse("https://www.youtube.com/watch?v=dQw4w9WgXcQ")

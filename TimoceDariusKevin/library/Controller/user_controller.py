@@ -11,7 +11,13 @@ user_router = APIRouter(
 )
 
 @user_router.post("/", response_model=UserPublic)
-async def create_user(user: UserCreate, session: SessionDependency):
+async def create_user(user: UserCreate, session: SessionDependency) -> UserPublic:
+    """Create a new user account
+
+    Params:
+    :param user: User creation data
+    :param session: Database session dependency
+    :return: Created user details"""
     # Hash password before storing
     hashed_password = get_password_hash(user.password)
     database_user = User(
@@ -32,7 +38,14 @@ async def read_users(
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ):
-    """Get all users - Admin only"""
+    """Get all users (admin only)
+
+    Params:
+    :param current_user: Currently authenticated admin user
+    :param session: Database session dependency
+    :param offset: Pagination offset
+    :param limit: Maximum number of records to return (max 100)
+    :return: List of user details"""
     users = session.exec(select(User).offset(offset).limit(limit)).all()
     return [UserPublic(**user.model_dump()) for user in users]
 
@@ -42,7 +55,13 @@ async def read_user(
     session: SessionDependency,
     user_id: int
 ):
-    """Get user by ID - Admin only"""
+    """Get user by ID (admin only)
+
+    Params:
+    :param current_user: Currently authenticated admin user
+    :param session: Database session dependency
+    :param user_id: ID of the user to retrieve
+    :return: User details"""
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -54,7 +73,13 @@ async def delete_user(
     session: SessionDependency,
     user_id: int
 ):
-    """Delete user - Admin only"""
+    """Delete user (admin only)
+
+    Params:
+    :param current_user: Currently authenticated admin user
+    :param session: Database session dependency
+    :param user_id: ID of the user to delete
+    :return: Success confirmation"""
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -69,7 +94,14 @@ async def update_user(
     user_id: int, 
     user_update: UserUpdate
 ):
-    """Update user - Admin only"""
+    """Update user information (admin only)
+
+    Params:
+    :param current_user: Currently authenticated admin user
+    :param session: Database session dependency
+    :param user_id: ID of the user to update
+    :param user_update: User data to update
+    :return: Updated user details"""
     database_user = session.get(User, user_id)
     if not database_user:
         raise HTTPException(status_code=404, detail="User not found")

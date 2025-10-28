@@ -18,7 +18,13 @@ async def add_to_library(
     session: SessionDependency,
     book_id: int
 ):
-    """Add a book to user's personal library"""
+    """Add a book to user's personal library
+
+    Params:
+    :param current_user: Currently authenticated user
+    :param session: Database session dependency
+    :param book_id: ID of the book to add
+    :return: Success message"""
     book = session.get(Book, book_id)
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
@@ -52,7 +58,12 @@ async def get_my_library(
     current_user: Annotated[User, Depends(get_current_active_user)],
     session: SessionDependency
 ):
-    """Get current user's personal library"""
+    """Get current user's personal library
+
+    Params:
+    :param current_user: Currently authenticated user
+    :param session: Database session dependency
+    :return: List of books in user's library"""
     user_books = session.exec(
         select(UserBook).where(UserBook.user_id == current_user.id)
     ).all()
@@ -71,7 +82,13 @@ async def get_user_library(
     session: SessionDependency,
     user_id: int
 ):
-    """Get any user's personal library - Admin only"""
+    """Get any user's personal library (admin only)
+
+    Params:
+    :param current_user: Currently authenticated admin user
+    :param session: Database session dependency
+    :param user_id: ID of the user whose library to retrieve
+    :return: List of books in specified user's library"""
     user_books = session.exec(
         select(UserBook).where(UserBook.user_id == user_id)
     ).all()
@@ -90,7 +107,13 @@ async def remove_from_library(
     session: SessionDependency,
     book_id: int
 ):
-    """Remove a book from user's personal library"""
+    """Remove a book from user's personal library
+
+    Params:
+    :param current_user: Currently authenticated user
+    :param session: Database session dependency
+    :param book_id: ID of the book to remove
+    :return: Success message"""
     user_book = session.exec(
         select(UserBook).where(
             UserBook.user_id == current_user.id,

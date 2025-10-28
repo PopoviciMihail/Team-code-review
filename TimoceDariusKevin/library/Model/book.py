@@ -3,8 +3,6 @@ from typing import Optional
 from sqlmodel import SQLModel, Field as SQLField, Relationship
 from typing import List
 
-
-
 class BookBase(SQLModel):
     title: str = SQLField(..., min_length=1, max_length=200)
     author: str = SQLField(..., min_length=1, max_length=100)
